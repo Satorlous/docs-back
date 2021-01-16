@@ -1,6 +1,6 @@
 package com.utmn.bulls.repository;
 
-import com.utmn.bulls.model.User;
+import com.utmn.bulls.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
