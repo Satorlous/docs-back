@@ -1,4 +1,4 @@
-package com.utmn.bulls.model;
+package com.utmn.bulls.models;
 
 public enum AuthProvider {
     local,

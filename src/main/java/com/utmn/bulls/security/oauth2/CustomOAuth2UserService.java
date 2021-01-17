@@ -1,9 +1,10 @@
 package com.utmn.bulls.security.oauth2;
 
 import com.utmn.bulls.exception.OAuth2AuthenticationProcessingException;
-import com.utmn.bulls.model.AuthProvider;
-import com.utmn.bulls.model.User;
-import com.utmn.bulls.repository.UserRepository;
+import com.utmn.bulls.models.AuthProvider;
+import com.utmn.bulls.models.User;
+import com.utmn.bulls.repository.RoleRepo;
+import com.utmn.bulls.repository.UserRepo;
 import com.utmn.bulls.security.UserPrincipal;
 import com.utmn.bulls.security.oauth2.user.OAuth2UserInfo;
 import com.utmn.bulls.security.oauth2.user.OAuth2UserInfoFactory;
@@ -23,7 +24,10 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepo userRepo;
+
+    @Autowired
+    private RoleRepo roleRepo;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
@@ -45,7 +49,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationProcessingException("Email not found from OAuth2 provider");
         }
 
-        Optional<User> userOptional = userRepository.findByEmail(oAuth2UserInfo.getEmail());
+        Optional<User> userOptional = userRepo.findByEmail(oAuth2UserInfo.getEmail());
         User user;
         if(userOptional.isPresent()) {
             user = userOptional.get();
@@ -67,16 +71,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         user.setProvider(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId()));
         user.setProviderId(oAuth2UserInfo.getId());
-        user.setName(oAuth2UserInfo.getName());
+        user.setFirstName(oAuth2UserInfo.getName());
         user.setEmail(oAuth2UserInfo.getEmail());
-        user.setImageUrl(oAuth2UserInfo.getImageUrl());
-        return userRepository.save(user);
+        user.setAvatar(oAuth2UserInfo.getImageUrl());
+        user.setRole(roleRepo.findByName("user"));
+        return userRepo.save(user);
     }
 
     private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
-        existingUser.setName(oAuth2UserInfo.getName());
-        existingUser.setImageUrl(oAuth2UserInfo.getImageUrl());
-        return userRepository.save(existingUser);
+        existingUser.setFirstName(oAuth2UserInfo.getName());
+        existingUser.setAvatar(oAuth2UserInfo.getImageUrl());
+        return userRepo.save(existingUser);
     }
 
 }

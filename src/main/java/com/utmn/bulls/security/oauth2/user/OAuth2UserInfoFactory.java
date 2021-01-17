@@ -1,7 +1,7 @@
 package com.utmn.bulls.security.oauth2.user;
 
 import com.utmn.bulls.exception.OAuth2AuthenticationProcessingException;
-import com.utmn.bulls.model.AuthProvider;
+import com.utmn.bulls.models.AuthProvider;
 
 import java.util.Map;
 

@@ -1,13 +1,22 @@
 spring:
     datasource:
-        url: jdbc:postgresql://localhost:5432/bullsncows
+        url: jdbc:postgresql://localhost:5432/eventsystem
         username: zz
         password: ee
+
+    flyway:
+      user: zz
+      password: ee
+      schemas: eventsystem
+      url: jdbc:postgresql://localhost:5432/eventsystem
+      locations: classpath:migrations
+      enabled: true
+
 
     jpa:
         show-sql: true
         hibernate:
-            ddl-auto: update
+            ddl-auto: create-drop
             naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
 
     security:
@@ -56,3 +65,5 @@ app:
 
 server:
   port: 1213
+
+debug: false

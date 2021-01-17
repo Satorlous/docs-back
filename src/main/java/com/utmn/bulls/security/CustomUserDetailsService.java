@@ -2,8 +2,8 @@ package com.utmn.bulls.security;
 
 
 import com.utmn.bulls.exception.ResourceNotFoundException;
-import com.utmn.bulls.model.User;
-import com.utmn.bulls.repository.UserRepository;
+import com.utmn.bulls.models.User;
+import com.utmn.bulls.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,13 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    UserRepository userRepository;
+    UserRepo userRepo;
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+        User user = userRepo.findByEmail(email)
                 .orElseThrow(() ->
                         new UsernameNotFoundException("User not found with email : " + email)
         );
@@ -31,7 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Transactional
     public UserDetails loadUserById(Long id) {
-        User user = userRepository.findById(id).orElseThrow(
+        User user = userRepo.findById(id).orElseThrow(
             () -> new ResourceNotFoundException("User", "id", id)
         );
 

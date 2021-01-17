@@ -1,15 +1,12 @@
 package com.utmn.bulls.security;
 
-import com.utmn.bulls.model.User;
+import com.utmn.bulls.models.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class UserPrincipal implements OAuth2User, UserDetails {
     private Long id;
@@ -26,8 +23,17 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     }
 
     public static UserPrincipal create(User user) {
-        List<GrantedAuthority> authorities = Collections.
-                singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        if(user.getRole().getName().equals("expert"))
+            authorities.add(new SimpleGrantedAuthority("ROLE_EXPERT"));
+
+        if(user.getRole().getName().equals("admin")) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_EXPERT"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        }
+
 
         return new UserPrincipal(
                 user.getId(),

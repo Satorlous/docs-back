@@ -1,12 +1,12 @@
-package com.utmn.bulls.model;
+package com.utmn.bulls.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
-import java.sql.Timestamp;
 import java.util.Set;
+
 
 @Entity
 @Table(name = "users", uniqueConstraints = {
@@ -18,13 +18,10 @@ public class User {
     private Long id;
 
     @Column(nullable = false)
-    private String first_name;
+    private String firstName;
 
     @Column(nullable = false)
-    private String last_name;
-
-    @Column(nullable = false)
-    private String country;
+    private String lastName;
 
     @Email
     @Column(nullable = false)
@@ -36,38 +33,35 @@ public class User {
     @Column(nullable = false)
     private Boolean emailVerified = false;
 
-    @Column(nullable = false)
     private String verificationToken;
 
     @JsonIgnore
     private String password;
 
-    @Column
     private Integer pin;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-//    @OneToMany(mappedBy = "user")
-//    private Set<Result> results;
-
-
-    //FROM CLASS RESULT
-
-//    @ManyToOne(optional = false)
-//    @JoinColumn(name = "user_id", nullable = false)
-//    private User user;
-//
-//    @CreationTimestamp
-//    @Column(nullable = false)
-//    private Timestamp created_at;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "country_id", nullable = false)
+    private Country country;
 
     @NotNull
     @Enumerated(EnumType.STRING)
     private AuthProvider provider;
 
     private String providerId;
+
+
+    @ManyToMany
+    @JoinTable(
+            name = "event_user",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id"))
+    private Set<Event> events;
+
 
     //#region Getters Setters
 
@@ -80,27 +74,19 @@ public class User {
     }
 
     public String getFirstName() {
-        return first_name;
+        return firstName;
     }
 
     public void setFirstName(String first_name) {
-        this.first_name = first_name;
+        this.firstName = first_name;
     }
 
     public String getLastName() {
-        return last_name;
+        return lastName;
     }
 
     public void setLastName(String last_name) {
-        this.last_name = last_name;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
+        this.lastName = last_name;
     }
 
     public String getEmail() {
@@ -175,5 +161,21 @@ public class User {
         this.providerId = providerId;
     }
 
-    //#endregion Getters Setters
+    public Set<Event> getEvents() {
+        return events;
+    }
+
+    public void setEvents(Set<Event> events) {
+        this.events = events;
+    }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public void setCountry(Country country) {
+        this.country = country;
+    }
+
+//#endregion Getters Setters
 }

@@ -1,13 +1,15 @@
 package com.utmn.bulls.controller;
 
 import com.utmn.bulls.exception.BadRequestException;
-import com.utmn.bulls.model.AuthProvider;
-import com.utmn.bulls.model.User;
+import com.utmn.bulls.models.AuthProvider;
+import com.utmn.bulls.models.User;
 import com.utmn.bulls.payload.ApiResponse;
 import com.utmn.bulls.payload.AuthResponse;
 import com.utmn.bulls.payload.LoginRequest;
 import com.utmn.bulls.payload.SignUpRequest;
-import com.utmn.bulls.repository.UserRepository;
+import com.utmn.bulls.repository.CountryRepo;
+import com.utmn.bulls.repository.RoleRepo;
+import com.utmn.bulls.repository.UserRepo;
 import com.utmn.bulls.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,13 +32,19 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepo userRepo;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     private TokenProvider tokenProvider;
+
+    @Autowired
+    private CountryRepo countryRepo;
+
+    @Autowired
+    private RoleRepo roleRepo;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -56,27 +64,28 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-        if(userRepository.existsByEmail(signUpRequest.getEmail())) {
-            throw new BadRequestException("Email address already in use.");
+        if(userRepo.existsByEmail(signUpRequest.getEmail())) {
+            throw new BadRequestException("Данный E-Mail уже используется!");
         }
 
-        // Creating user's account
         User user = new User();
-        user.setName(signUpRequest.getName());
+        user.setFirstName(signUpRequest.getFirstName());
+        user.setLastName(signUpRequest.getLastName());
         user.setEmail(signUpRequest.getEmail());
-        user.setPassword(signUpRequest.getPassword());
+        user.setCountry(countryRepo.findByName(signUpRequest.getCountry()));
         user.setProvider(AuthProvider.local);
+        user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+        user.setRole(roleRepo.findByName("user"));
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        User result = userRepository.save(user);
+        User result = userRepo.save(user);
 
         URI location = ServletUriComponentsBuilder
-                .fromCurrentContextPath().path("/user/me")
+                .fromCurrentContextPath()
+                .path("/user/me")
                 .buildAndExpand(result.getId()).toUri();
 
         return ResponseEntity.created(location)
-                .body(new ApiResponse(true, "User registered successfully@"));
+                .body(new ApiResponse(true, "Регистрация успешна!"));
     }
 
 }
